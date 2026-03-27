@@ -90,6 +90,7 @@ const app = {
 };
 
 // Enable "Add to Home Screen" PWA setup logic here in the future
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await smartVineEngine.loadWines();
   console.log("WineMaster UI Ready.");
 });

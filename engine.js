@@ -1,13 +1,14 @@
 const smartVineEngine = {
-  wines: [
-    { id: 'w1', name: 'Sangiovese', region: 'Tuscany', category: 'Red', traits: { tannin: 4, acidity: 5, sweetness: 1, body: 4 }, desc: 'High acidity, high tannin. Perfect for tomato-based dishes like pasta and pizza.' },
-    { id: 'w2', name: 'Nebbiolo', region: 'Piedmont', category: 'Bold Red', traits: { tannin: 5, acidity: 5, sweetness: 1, body: 5 }, desc: 'Powerful, grippy tannins with floral notes. Best with truffles or rich meats.' },
-    { id: 'w3', name: 'Barbera', region: 'Piedmont', category: 'Red', traits: { tannin: 2, acidity: 5, sweetness: 1, body: 3 }, desc: 'High acid but low tannin. Great for rich, cheesy pasta.' },
-    { id: 'w4', name: 'Primitivo', region: 'Puglia', category: 'Bold Red', traits: { tannin: 3, acidity: 2, sweetness: 2, body: 5 }, desc: 'Jammy, full-bodied. Pairs with heavy meat ragù.' },
-    { id: 'w5', name: 'Pinot Grigio', region: 'Veneto, Friuli', category: 'Crisp White', traits: { tannin: 0, acidity: 4, sweetness: 1, body: 2 }, desc: 'Light and crisp. Ideal for delicate seafood and fritto misto.' },
-    { id: 'w6', name: 'Vermentino', region: 'Sardinia, Tuscany', category: 'Zesty White', traits: { tannin: 0, acidity: 4, sweetness: 1, body: 3 }, desc: 'Citrus and saline notes. Perfect with pesto or lemon seafood.' },
-    { id: 'w7', name: 'Prosecco', region: 'Veneto', category: 'Sparkling', traits: { tannin: 0, acidity: 5, sweetness: 2, body: 2 }, desc: 'Bubbly and refreshing. Excellent aperitivo.' }
-  ],
+  wines: [],
+  
+  async loadWines() {
+    try {
+      const response = await fetch('./Wines.json');
+      this.wines = await response.json();
+    } catch (error) {
+      console.error('Failed to load wines data:', error);
+    }
+  },
   foods: [
     { id: 'f1', name: 'Pizza Margherita / Tomato Pasta', needs: { tannin: 3, acidity: 5, sweetness: 0, body: 3 }, type: 'Classic Italian' },
     { id: 'f2', name: 'Carbonara / Risotto', needs: { tannin: 2, acidity: 5, sweetness: 0, body: 3 }, type: 'Rich & Creamy' },
