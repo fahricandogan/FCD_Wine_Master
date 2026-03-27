@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>WineMaster</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#5b112b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WineMaster">
+  <!-- <link rel="apple-touch-icon" href="icon.png"> -->
+</head>
+<body>
+  <div id="app" class="app-container">
+    <header class="app-header">
+      <h1>WineMaster</h1>
+    </header>
+    <main class="app-content">
+      <div id="view-home" class="view active">
+        <h2>What are you starting with?</h2>
+        <div class="action-cards">
+          <div class="card" onclick="app.navigate('view-food')">
+            <div class="card-icon">🍽️</div>
+            <h3>I have Food</h3>
+            <p>Find the perfect wine to pair</p>
+          </div>
+          <div class="card" onclick="app.navigate('view-wine')">
+            <div class="card-icon">🍷</div>
+            <h3>I have Wine</h3>
+            <p>Find the perfect meal to cook</p>
+          </div>
+        </div>
+      </div>
+      
+      <div id="view-food" class="view">
+        <button class="back-btn" onclick="app.navigate('view-home')">← Back</button>
+        <h2>Select Food Trait</h2>
+        <!-- Content will be injected by JS -->
+      </div>
+      
+      <div id="view-wine" class="view">
+        <button class="back-btn" onclick="app.navigate('view-home')">← Back</button>
+        <h2>Select Wine Trait</h2>
+        <!-- Content will be injected by JS -->
+      </div>
+    </main>
+  </div>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

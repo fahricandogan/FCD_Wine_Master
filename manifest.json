@@ -1,0 +1,9 @@
+{
+  "name": "WineMaster",
+  "short_name": "WineMaster",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f7f3f5",
+  "theme_color": "#5b112b",
+  "icons": []
+}
