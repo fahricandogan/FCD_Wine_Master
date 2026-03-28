@@ -217,9 +217,8 @@ h2 {
 }
 .result-card.top-match { border-left-color: #27ae60; }
 .score-badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
+  display: inline-block;
+  margin-bottom: 12px;
   background: #f0f0f0;
   color: var(--text-main);
   padding: 4px 10px;
@@ -228,6 +227,25 @@ h2 {
   font-weight: 700;
 }
 .result-card.top-match .score-badge { background: #e8f8f0; color: #27ae60; }
-.result-card h3 { font-size: 1.25rem; margin-bottom: 4px; color: var(--text-main); padding-right: 60px; }
-.wine-type { font-size: 0.9rem; color: var(--primary); font-weight: 600; display: block; margin-bottom: 8px; }
-.result-card p { font-size: 0.95rem; color: var(--text-light); line-height: 1.4; }
+.result-card h3 { 
+  font-size: 1.25rem; 
+  margin-bottom: 4px; 
+  color: var(--text-main); 
+  overflow-wrap: break-word;
+  padding-right: 12px;
+}
+.wine-type { 
+  font-size: 0.9rem; 
+  color: var(--primary); 
+  font-weight: 600; 
+  display: block; 
+  margin-bottom: 8px;
+  padding-right: 12px;
+}
+.result-card p { 
+  font-size: 0.95rem; 
+  color: var(--text-light); 
+  line-height: 1.4; 
+  overflow-wrap: break-word;
+  padding-right: 12px;
+}
