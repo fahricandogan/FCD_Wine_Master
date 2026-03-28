@@ -17,6 +17,12 @@
     <header class="app-header">
       <h1>WineMaster</h1>
     </header>
+    <div class="picker-container">
+      <div class="segmented-picker">
+        <button id="btn-french" onclick="app.setMode('french')">French</button>
+        <button id="btn-italian" class="active" onclick="app.setMode('italian')">Italian</button>
+      </div>
+    </div>
     <main class="app-content">
       <div id="view-home" class="view active">
         <h2>What are you starting with?</h2>
