@@ -1,9 +1,12 @@
 {
-  "name": "WineMaster",
-  "short_name": "WineMaster",
+  "name": "Cépage",
+  "short_name": "Cépage",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f7f3f5",
-  "theme_color": "#5b112b",
-  "icons": []
+  "background_color": "#F2E9DC",
+  "theme_color": "#5C1B2E",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }

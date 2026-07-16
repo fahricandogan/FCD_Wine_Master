@@ -1,59 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>WineMaster</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#5b112b">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="WineMaster">
-  <!-- <link rel="apple-touch-icon" href="icon.png"> -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cépage">
+<meta name="theme-color" content="#5C1B2E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Cépage</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
+:root{
+  --burgundy:#5C1B2E; --oxblood:#7A2438; --parchment:#F2E9DC;
+  --charcoal:#2B2320; --gold:#B8935A; --sage:#7C8B6F; --line: rgba(43,35,32,0.14);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;background:var(--parchment);color:var(--charcoal);font-family:'Jost',sans-serif;
+  padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);}
+h1,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;}
+.wrap{max-width:520px;margin:0 auto;padding:20px 18px 100px;}
+
+header{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:20px;}
+header .title{font-size:28px;color:var(--burgundy);}
+header .gear{background:none;border:none;font-size:19px;opacity:0.5;cursor:pointer;padding:4px;}
+
+nav{display:flex;position:sticky;top:0;background:var(--parchment);z-index:5;padding-top:4px;margin-bottom:20px;}
+nav button{flex:1;padding:10px 0;background:none;border:none;border-bottom:2px solid var(--line);
+  font-family:'Jost';font-size:12.5px;letter-spacing:0.07em;text-transform:uppercase;color:var(--charcoal);
+  opacity:0.5;cursor:pointer;}
+nav button.active{opacity:1;border-color:var(--burgundy);color:var(--burgundy);}
+
+.searchrow{display:flex;gap:8px;margin-bottom:6px;}
+.searchrow input{flex:1;padding:13px 14px;border:1px solid var(--line);background:#fff;border-radius:8px;
+  font-family:'Jost';font-size:16px;color:var(--charcoal);}
+.searchrow input:focus{outline:none;border-color:var(--gold);}
+.searchrow button{padding:0 18px;background:var(--burgundy);color:var(--parchment);border:none;border-radius:8px;
+  font-family:'Jost';font-size:13px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.searchrow button:disabled{opacity:0.4;}
+
+#status{font-size:13.5px;color:var(--oxblood);margin:12px 0;min-height:18px;}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px 20px;margin-bottom:18px;}
+.card .name{font-size:23px;color:var(--burgundy);margin:0 0 2px;}
+.card .meta{font-size:13px;opacity:0.65;margin-bottom:16px;}
+.card .meta span{margin-right:12px;display:inline-block;}
+
+.wheel-row{display:flex;gap:18px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.wheel-legend{display:flex;flex-direction:column;gap:6px;font-size:12.5px;}
+.wheel-legend .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+
+.scores{border-top:1px solid var(--line);padding-top:14px;}
+.scores h3{font-size:12.5px;text-transform:uppercase;letter-spacing:0.07em;font-family:'Jost';font-weight:500;opacity:0.55;margin:0 0 10px;}
+.score-item{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line);}
+.score-item:last-child{border-bottom:none;}
+.score-item .critic{font-weight:500;min-width:100px;font-size:13.5px;}
+.score-item .score{color:var(--gold);font-weight:600;white-space:nowrap;font-size:13.5px;}
+.score-item .blurb{font-size:12.5px;opacity:0.7;flex-basis:100%;}
+.no-scores{font-size:13px;opacity:0.55;font-style:italic;}
+
+.grapes{margin:12px 0 2px;}
+.chip{display:inline-block;background:var(--parchment);border:1px solid var(--line);padding:3px 9px;border-radius:20px;font-size:12.5px;margin:0 5px 5px 0;}
+
+.save-btn{margin-top:14px;padding:11px 18px;background:none;border:1px solid var(--burgundy);color:var(--burgundy);
+  border-radius:8px;font-family:'Jost';font-size:13px;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;width:100%;}
+.save-btn.saved{border-color:var(--sage);color:var(--sage);}
+
+.cellar-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;}
+.cellar-card .name{font-size:18px;color:var(--burgundy);margin:0 0 2px;}
+.cellar-card .meta{font-size:12px;opacity:0.6;margin-bottom:6px;}
+.stars{font-size:16px;color:var(--gold);letter-spacing:2px;}
+.notes-input{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 9px;font-family:'Jost';
+  font-size:13px;margin-top:6px;resize:vertical;min-height:34px;}
+.remove{background:none;border:none;color:var(--charcoal);opacity:0.35;font-size:16px;float:right;cursor:pointer;}
+.empty{text-align:center;padding:60px 20px;opacity:0.45;font-size:14px;}
+
+.overlay{position:fixed;inset:0;background:rgba(43,35,32,0.5);display:flex;align-items:center;justify-content:center;z-index:20;padding:20px;}
+.overlay .box{background:#fff;border-radius:12px;padding:26px 22px;max-width:380px;width:100%;}
+.overlay .box h2{margin:0 0 8px;font-size:22px;color:var(--burgundy);}
+.overlay .box p{font-size:13.5px;opacity:0.75;line-height:1.5;margin-bottom:16px;}
+.overlay .box input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font-family:'Jost';font-size:14px;margin-bottom:12px;}
+.overlay .box a{color:var(--oxblood);}
+.hidden{display:none !important;}
+</style>
 </head>
 <body>
-  <div id="app" class="app-container">
-    <header class="app-header">
-      <h1>WineMaster</h1>
-    </header>
-    <div class="picker-container">
-      <div class="segmented-picker">
-        <button id="btn-french" onclick="app.setMode('french')">French</button>
-        <button id="btn-italian" class="active" onclick="app.setMode('italian')">Italian</button>
-      </div>
+
+<div class="wrap">
+  <header>
+    <div class="title display">Cépage</div>
+    <button class="gear" id="settings-btn">⚙︎</button>
+  </header>
+
+  <nav>
+    <button class="active" data-view="search">Search</button>
+    <button data-view="cellar">My Cellar</button>
+  </nav>
+
+  <div id="search-view">
+    <div class="searchrow">
+      <input id="query" type="text" placeholder="e.g. Château Musar 2016" autocomplete="off" autocapitalize="words">
+      <button id="go">Search</button>
     </div>
-    <main class="app-content">
-      <div id="view-home" class="view active">
-        <h2>What are you starting with?</h2>
-        <div class="action-cards">
-          <div class="card" onclick="app.navigate('view-food')">
-            <div class="card-icon">🍽️</div>
-            <h3>I have Food</h3>
-            <p>Find the perfect wine to pair</p>
-          </div>
-          <div class="card" onclick="app.navigate('view-wine')">
-            <div class="card-icon">🍷</div>
-            <h3>I have Wine</h3>
-            <p>Find the perfect meal to cook</p>
-          </div>
-        </div>
-      </div>
-      
-      <div id="view-food" class="view">
-        <button class="back-btn" onclick="app.navigate('view-home')">← Back</button>
-        <h2>Select Food Trait</h2>
-        <!-- Content will be injected by JS -->
-      </div>
-      
-      <div id="view-wine" class="view">
-        <button class="back-btn" onclick="app.navigate('view-home')">← Back</button>
-        <h2>Select Wine Trait</h2>
-        <!-- Content will be injected by JS -->
-      </div>
-    </main>
+    <div id="status"></div>
+    <div id="results"></div>
   </div>
-  <script src="engine.js"></script>
-  <script src="app.js"></script>
+
+  <div id="cellar-view" style="display:none;">
+    <div id="cellar-list"></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="key-overlay">
+  <div class="box">
+    <h2 class="display">Set up Cépage</h2>
+    <p>This app calls Claude directly with your own Anthropic API key, stored only on this device. Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — it's billed separately (pay-as-you-go) from any claude.ai subscription, usually a few cents per search.</p>
+    <input id="key-input" type="password" placeholder="sk-ant-...">
+    <button class="save-btn" id="key-save">Save key</button>
+  </div>
+</div>
+
+<script>
+const AXES = [
+  {key:'tannin', label:'Tannin', color:'#7A2438'},
+  {key:'acidity', label:'Acidity', color:'#7C8B6F'},
+  {key:'body', label:'Body', color:'#5C1B2E'},
+  {key:'sweetness', label:'Sweetness', color:'#B8935A'}
+];
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+}
+
+function getKey(){ return localStorage.getItem('cepage_api_key') || ''; }
+function setKey(k){ localStorage.setItem('cepage_api_key', k); }
+
+function slugify(w){
+  return (w.name+'|'+(w.producer||'')+'|'+(w.vintage||'')).toLowerCase().replace(/[^a-z0-9|]/g,'').slice(0,180);
+}
+
+function radarSVG(characteristics){
+  const size=140, cx=size/2, cy=size/2, r=48, n=AXES.length;
+  const angle = i => (Math.PI*2*i/n) - Math.PI/2;
+  const ringPts = s => AXES.map((a,i)=>{
+    const x=cx+Math.cos(angle(i))*r*s, y=cy+Math.sin(angle(i))*r*s; return x+','+y;
+  }).join(' ');
+  let rings=[0.33,0.66,1].map(s=>`<polygon points="${ringPts(s)}" fill="none" stroke="rgba(43,35,32,0.12)" stroke-width="1"/>`).join('');
+  let spokes=AXES.map((a,i)=>{
+    const x=cx+Math.cos(angle(i))*r, y=cy+Math.sin(angle(i))*r;
+    return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(43,35,32,0.12)" stroke-width="1"/>`;
+  }).join('');
+  let dataPts=AXES.map((a,i)=>{
+    const v=Math.max(0,Math.min(5,Number(characteristics[a.key])||0))/5;
+    const x=cx+Math.cos(angle(i))*r*v, y=cy+Math.sin(angle(i))*r*v; return x+','+y;
+  }).join(' ');
+  let labels=AXES.map((a,i)=>{
+    const x=cx+Math.cos(angle(i))*(r+20), y=cy+Math.sin(angle(i))*(r+20);
+    return `<text x="${x}" y="${y}" font-size="9.5" font-family="Jost" fill="#2B2320" opacity="0.6" text-anchor="middle" dominant-baseline="middle">${a.label}</text>`;
+  }).join('');
+  return `<svg width="${size+44}" height="${size+24}" viewBox="0 0 ${size+44} ${size+24}">
+    <g transform="translate(22,8)">${rings}${spokes}
+      <polygon points="${dataPts}" fill="rgba(124,35,56,0.28)" stroke="#7A2438" stroke-width="1.5"/>${labels}
+    </g></svg>`;
+}
+function legendHTML(c){
+  return AXES.map(a=>`<div><span class="dot" style="background:${a.color}"></span>${a.label}: ${c[a.key]}/5</div>`).join('');
+}
+
+async function lookupWine(query){
+  const key = getKey();
+  if(!key) throw new Error('No API key set. Tap the ⚙︎ icon to add one.');
+  const prompt = `Search the web for factual information about this wine: "${query}".
+
+Find:
+1. Producer, vintage, region, country, main grape variety/varieties, approximate ABV.
+2. Tasting characteristics on a 1-5 scale: tannin (1=low,5=high), acidity (1=low,5=high), body (1=light,5=full/bold), sweetness (1=bone dry,5=very sweet).
+3. Scores from PROFESSIONAL CRITICS ONLY (Decanter, Wine Spectator, James Suckling, Vinous, Wine Enthusiast, Robert Parker/Wine Advocate, Jancis Robinson) — never Vivino/Untappd. For each, give the numeric score and a short summary IN YOUR OWN WORDS (never quote directly, max 15 words).
+4. A brief note (max 2 sentences) synthesizing what public reviewers/tasting notes commonly say about it, in your own words.
+
+Return ONLY raw JSON — your entire response must be nothing but the JSON object below, no preamble, no explanation, no markdown fences, matching exactly:
+{"name":"","producer":"","vintage":"","region":"","country":"","grapes":["..."],"abv":"","characteristics":{"tannin":3,"acidity":3,"body":3,"sweetness":1},"critic_scores":[{"critic":"","score":"","summary":""}],"note":""}
+
+If the wine can't be found, set "name" to "" and explain in "note".`;
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{
+      "content-type":"application/json",
+      "x-api-key": key,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body: JSON.stringify({
+      model:"claude-sonnet-4-6",
+      max_tokens:1000,
+      messages:[{role:"user", content: prompt}],
+      tools:[{type:"web_search_20250305", name:"web_search"}]
+    })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || 'API error');
+  const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  if(!text.trim()) throw new Error('No response text returned.');
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if(start === -1 || end === -1 || end < start){
+    throw new Error('Could not find JSON in response: ' + text.slice(0,150));
+  }
+  const jsonSlice = text.slice(start, end+1);
+  try{
+    return JSON.parse(jsonSlice);
+  }catch(e){
+    throw new Error('Could not parse JSON: ' + jsonSlice.slice(0,150));
+  }
+}
+
+function renderResult(wine){
+  const results = document.getElementById('results');
+  if(!wine.name){
+    results.innerHTML = `<div class="card"><div class="no-scores">Couldn't find that one. ${wine.note||'Try a more specific name, producer, or vintage.'}</div></div>`;
+    return;
+  }
+  const id = slugify(wine);
+  const scoresHTML = (wine.critic_scores && wine.critic_scores.length)
+    ? wine.critic_scores.map(s=>`<div class="score-item"><div class="critic">${s.critic}</div><div class="score">${s.score}</div><div class="blurb">${s.summary||''}</div></div>`).join('')
+    : `<div class="no-scores">No professional critic scores found.</div>`;
+  const alreadySaved = !!localStorage.getItem('cellar:'+id);
+
+  results.innerHTML = `
+  <div class="card">
+    <div class="name display">${wine.name}${wine.vintage?' '+wine.vintage:''}</div>
+    <div class="meta">
+      ${wine.producer?'<span>'+wine.producer+'</span>':''}
+      ${wine.region?'<span>'+wine.region+(wine.country?', '+wine.country:'')+'</span>':''}
+      ${wine.abv?'<span>'+wine.abv+' ABV</span>':''}
+    </div>
+    <div class="wheel-row">
+      ${radarSVG(wine.characteristics||{})}
+      <div class="wheel-legend">${legendHTML(wine.characteristics||{tannin:0,acidity:0,body:0,sweetness:0})}</div>
+    </div>
+    ${wine.grapes && wine.grapes.length ? `<div class="grapes">${wine.grapes.map(g=>'<span class="chip">'+g+'</span>').join('')}</div>` : ''}
+    ${wine.note ? `<p style="font-size:13.5px;opacity:0.75;line-height:1.5;">${wine.note}</p>` : ''}
+    <div class="scores"><h3>Critic Scores</h3>${scoresHTML}</div>
+    <button class="save-btn ${alreadySaved?'saved':''}" id="save-btn" ${alreadySaved?'disabled':''}>${alreadySaved?'Saved ✓':'Save to cellar'}</button>
+  </div>`;
+
+  const btn = document.getElementById('save-btn');
+  if(btn && !alreadySaved){
+    btn.addEventListener('click', ()=>{
+      wine.rating = 0; wine.notes=''; wine.savedAt = Date.now();
+      localStorage.setItem('cellar:'+id, JSON.stringify(wine));
+      btn.textContent='Saved ✓'; btn.classList.add('saved'); btn.disabled=true;
+    });
+  }
+}
+
+document.getElementById('go').addEventListener('click', runSearch);
+document.getElementById('query').addEventListener('keydown', e=>{ if(e.key==='Enter') runSearch(); });
+
+async function runSearch(){
+  const q = document.getElementById('query').value.trim();
+  if(!q) return;
+  if(!getKey()){ document.getElementById('key-overlay').classList.remove('hidden'); return; }
+  const btn = document.getElementById('go'), status = document.getElementById('status');
+  btn.disabled = true;
+  status.textContent = 'Searching…';
+  document.getElementById('results').innerHTML = '';
+  try{
+    const wine = await lookupWine(q);
+    renderResult(wine);
+    status.textContent = '';
+  }catch(e){
+    status.textContent = 'Error: ' + e.message;
+  }
+  btn.disabled = false;
+}
+
+// Settings / key overlay
+document.getElementById('settings-btn').addEventListener('click', ()=>{
+  document.getElementById('key-input').value = getKey();
+  document.getElementById('key-overlay').classList.remove('hidden');
+});
+document.getElementById('key-save').addEventListener('click', ()=>{
+  const v = document.getElementById('key-input').value.trim();
+  if(v) setKey(v);
+  document.getElementById('key-overlay').classList.add('hidden');
+});
+if(!getKey()){ document.getElementById('key-overlay').classList.remove('hidden'); }
+
+// Nav
+document.querySelectorAll('nav button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const v = b.dataset.view;
+    document.getElementById('search-view').style.display = v==='search'?'block':'none';
+    document.getElementById('cellar-view').style.display = v==='cellar'?'block':'none';
+    if(v==='cellar') loadCellar();
+  });
+});
+
+function loadCellar(){
+  const list = document.getElementById('cellar-list');
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith('cellar:'));
+  if(!keys.length){ list.innerHTML = '<div class="empty">No wines saved yet.</div>'; return; }
+  const wines = keys.map(k=>({key:k, wine: JSON.parse(localStorage.getItem(k))}))
+    .sort((a,b)=>(b.wine.savedAt||0)-(a.wine.savedAt||0));
+  list.innerHTML = '';
+  wines.forEach(({key,wine})=>{
+    const div = document.createElement('div');
+    div.className = 'cellar-card';
+    const stars = [1,2,3,4,5].map(i=>`<span data-i="${i}" style="cursor:pointer;">${i<=(wine.rating||0)?'★':'☆'}</span>`).join('');
+    div.innerHTML = `
+      <button class="remove">✕</button>
+      <div class="name display">${wine.name}${wine.vintage?' '+wine.vintage:''}</div>
+      <div class="meta">${wine.producer||''} ${wine.region?'· '+wine.region:''}</div>
+      <div class="stars">${stars}</div>
+      <textarea class="notes-input" placeholder="Tasting notes...">${wine.notes||''}</textarea>`;
+    div.querySelectorAll('.stars span').forEach(s=>{
+      s.addEventListener('click', ()=>{
+        wine.rating = Number(s.dataset.i);
+        localStorage.setItem(key, JSON.stringify(wine));
+        loadCellar();
+      });
+    });
+    div.querySelector('.notes-input').addEventListener('blur', e=>{
+      wine.notes = e.target.value;
+      localStorage.setItem(key, JSON.stringify(wine));
+    });
+    div.querySelector('.remove').addEventListener('click', ()=>{
+      localStorage.removeItem(key);
+      loadCellar();
+    });
+    list.appendChild(div);
+  });
+}
+</script>
 </body>
 </html>
