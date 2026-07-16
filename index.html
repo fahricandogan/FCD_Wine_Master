@@ -116,9 +116,12 @@ nav button.active{opacity:1;border-color:var(--burgundy);color:var(--burgundy);}
 <div class="overlay hidden" id="key-overlay">
   <div class="box">
     <h2 class="display">Set up Cépage</h2>
-    <p>This app calls Claude directly with your own Anthropic API key, stored only on this device. Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — it's billed separately (pay-as-you-go) from any claude.ai subscription, usually a few cents per search.</p>
-    <input id="key-input" type="password" placeholder="sk-ant-...">
-    <button class="save-btn" id="key-save">Save key</button>
+    <p>Calls Claude directly with your own Anthropic API key, stored only on this device. Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — billed separately (pay-as-you-go) from any claude.ai subscription, usually a few cents per search.</p>
+    <input id="key-input" type="password" placeholder="Anthropic key: sk-ant-...">
+    <p style="margin-top:2px;">For bottle photos, add a free <a href="https://developers.google.com/custom-search/v1/overview" target="_blank">Google Custom Search</a> API key + Search Engine ID (100 free image searches/day). Optional — search still works without it.</p>
+    <input id="google-key-input" type="password" placeholder="Google API key (optional)">
+    <input id="google-cx-input" type="text" placeholder="Search Engine ID / cx (optional)">
+    <button class="save-btn" id="key-save">Save</button>
   </div>
 </div>
 
@@ -136,6 +139,27 @@ if('serviceWorker' in navigator){
 
 function getKey(){ return localStorage.getItem('cepage_api_key') || ''; }
 function setKey(k){ localStorage.setItem('cepage_api_key', k); }
+function getGoogleKey(){ return localStorage.getItem('cepage_google_key') || ''; }
+function setGoogleKey(k){ localStorage.setItem('cepage_google_key', k); }
+function getGoogleCx(){ return localStorage.getItem('cepage_google_cx') || ''; }
+function setGoogleCx(k){ localStorage.setItem('cepage_google_cx', k); }
+
+async function searchBottleImage(wine){
+  const key = getGoogleKey(), cx = getGoogleCx();
+  if(!key || !cx) return {url:'', error: null};
+  const q = encodeURIComponent(`${wine.producer||''} ${wine.name} ${wine.vintage||''} wine bottle`.trim());
+  try{
+    const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${key}&cx=${cx}&searchType=image&num=1&q=${q}`);
+    const data = await res.json();
+    if(data.error){
+      return {url:'', error: data.error.message || JSON.stringify(data.error)};
+    }
+    if(data.items && data.items[0] && data.items[0].link) return {url: data.items[0].link, error: null};
+    return {url:'', error: 'No image results for this wine on the configured sites.'};
+  }catch(e){
+    return {url:'', error: 'Network error: ' + e.message};
+  }
+}
 
 function slugify(w){
   return (w.name+'|'+(w.producer||'')+'|'+(w.vintage||'')).toLowerCase().replace(/[^a-z0-9|]/g,'').slice(0,180);
@@ -172,7 +196,7 @@ function legendHTML(c){
 async function lookupWine(query){
   const key = getKey();
   if(!key) throw new Error('No API key set. Tap the ⚙︎ icon to add one.');
-  const prompt = `Search the web for factual information about this wine: "${query}".
+  const prompt = `Search the web for factual information about this wine: "${query}". You have a budget of at most 2 searches, so combine your queries efficiently (e.g. one search for general wine facts, one for critic scores) rather than searching per-critic.
 
 Find:
 1. Producer, vintage, region, country, main grape variety/varieties, approximate ABV.
@@ -197,7 +221,7 @@ If the wine can't be found, set "name" to "" and explain in "note".`;
       model:"claude-sonnet-4-6",
       max_tokens:1000,
       messages:[{role:"user", content: prompt}],
-      tools:[{type:"web_search_20250305", name:"web_search"}]
+      tools:[{type:"web_search_20250305", name:"web_search", max_uses: 2}]
     })
   });
   const data = await res.json();
@@ -231,11 +255,16 @@ function renderResult(wine){
 
   results.innerHTML = `
   <div class="card">
-    <div class="name display">${wine.name}${wine.vintage?' '+wine.vintage:''}</div>
-    <div class="meta">
-      ${wine.producer?'<span>'+wine.producer+'</span>':''}
-      ${wine.region?'<span>'+wine.region+(wine.country?', '+wine.country:'')+'</span>':''}
-      ${wine.abv?'<span>'+wine.abv+' ABV</span>':''}
+    <div style="display:flex;gap:16px;">
+      ${wine.image_url ? `<img src="${wine.image_url}" alt="" style="width:72px;height:auto;max-height:130px;object-fit:contain;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+      <div style="flex:1;min-width:0;">
+        <div class="name display">${wine.name}${wine.vintage?' '+wine.vintage:''}</div>
+        <div class="meta">
+          ${wine.producer?'<span>'+wine.producer+'</span>':''}
+          ${wine.region?'<span>'+wine.region+(wine.country?', '+wine.country:'')+'</span>':''}
+          ${wine.abv?'<span>'+wine.abv+' ABV</span>':''}
+        </div>
+      </div>
     </div>
     <div class="wheel-row">
       ${radarSVG(wine.characteristics||{})}
@@ -270,8 +299,15 @@ async function runSearch(){
   document.getElementById('results').innerHTML = '';
   try{
     const wine = await lookupWine(q);
-    renderResult(wine);
-    status.textContent = '';
+    if(wine.name){
+      const imgResult = await searchBottleImage(wine);
+      wine.image_url = imgResult.url;
+      renderResult(wine);
+      status.textContent = imgResult.error ? ('Photo: ' + imgResult.error) : '';
+    } else {
+      renderResult(wine);
+      status.textContent = '';
+    }
   }catch(e){
     status.textContent = 'Error: ' + e.message;
   }
@@ -281,11 +317,15 @@ async function runSearch(){
 // Settings / key overlay
 document.getElementById('settings-btn').addEventListener('click', ()=>{
   document.getElementById('key-input').value = getKey();
+  document.getElementById('google-key-input').value = getGoogleKey();
+  document.getElementById('google-cx-input').value = getGoogleCx();
   document.getElementById('key-overlay').classList.remove('hidden');
 });
 document.getElementById('key-save').addEventListener('click', ()=>{
   const v = document.getElementById('key-input').value.trim();
   if(v) setKey(v);
+  setGoogleKey(document.getElementById('google-key-input').value.trim());
+  setGoogleCx(document.getElementById('google-cx-input').value.trim());
   document.getElementById('key-overlay').classList.add('hidden');
 });
 if(!getKey()){ document.getElementById('key-overlay').classList.remove('hidden'); }
@@ -315,10 +355,15 @@ function loadCellar(){
     const stars = [1,2,3,4,5].map(i=>`<span data-i="${i}" style="cursor:pointer;">${i<=(wine.rating||0)?'★':'☆'}</span>`).join('');
     div.innerHTML = `
       <button class="remove">✕</button>
-      <div class="name display">${wine.name}${wine.vintage?' '+wine.vintage:''}</div>
-      <div class="meta">${wine.producer||''} ${wine.region?'· '+wine.region:''}</div>
-      <div class="stars">${stars}</div>
-      <textarea class="notes-input" placeholder="Tasting notes...">${wine.notes||''}</textarea>`;
+      <div style="display:flex;gap:12px;">
+        ${wine.image_url ? `<img src="${wine.image_url}" alt="" style="width:44px;height:auto;max-height:80px;object-fit:contain;border-radius:3px;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+        <div style="flex:1;min-width:0;">
+          <div class="name display">${wine.name}${wine.vintage?' '+wine.vintage:''}</div>
+          <div class="meta">${wine.producer||''} ${wine.region?'· '+wine.region:''}</div>
+          <div class="stars">${stars}</div>
+          <textarea class="notes-input" placeholder="Tasting notes...">${wine.notes||''}</textarea>
+        </div>
+      </div>`;
     div.querySelectorAll('.stars span').forEach(s=>{
       s.addEventListener('click', ()=>{
         wine.rating = Number(s.dataset.i);
